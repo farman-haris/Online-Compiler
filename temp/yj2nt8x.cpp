@@ -1,1 +1,0 @@
-std::cout << 'Hello World! Welcome to your first C++ program!;'

@@ -18,6 +18,9 @@ app.use(
 );
 
 app.get("/", function (req, res) {
+  compiler.flush(() => {
+    console.log("deleted");
+  })
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
@@ -28,7 +31,7 @@ app.post("/compile", function (req, res) {
   try {
     if (lang == "cpp") {
       if (!input) {
-        var envData = { OS: "windows", cmd: "g++" };
+        var envData = { OS: "windows", cmd: "g++", option:{timeout: 10000} };
         compiler.compileCPP(envData, code, function (data) {
           if (data.output) {
             res.send(data);
@@ -37,7 +40,7 @@ app.post("/compile", function (req, res) {
           }
         });
       } else {
-        var envData = { OS: "windows", cmd: "g++" };
+        var envData = { OS: "windows", cmd: "g++", option:{timeout: 10000} };
         compiler.compileCPPWithInput(envData, code, input, function (data) {
           if (data.output) {
             res.send(data);
@@ -66,7 +69,7 @@ app.post("/compile", function (req, res) {
           }
         });
       }
-    } else {
+    } else if(lang== "python") {
       if (!input) {
         var envData = { OS: "windows" };
         compiler.compilePython(envData, code, function (data) {

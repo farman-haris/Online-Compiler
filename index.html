@@ -34,8 +34,6 @@
     <script src="codemirror-5.65.16/mode/clike/clike.js"></script>
 
     <script src="codemirror-5.65.16/addon/edit/closebrackets.js"></script>
-
-
   </head>
   <body class="bg-black">
     <div class="row m-3">
@@ -54,8 +52,10 @@
           </div>
 
           <div>
-            <button type="button" class="btn btn-success">Code-Sprint</button>
-            <button type="button" class="btn btn-success"><i class="bi bi-play-fill"></i></button>
+            <button type="button" class="btn btn-success">Run Code</button>
+            <button type="button" class="btn btn-success" id="run">
+              <i class="bi bi-play-fill"></i>
+            </button>
           </div>
         </div>
 
@@ -73,6 +73,7 @@
             type="text"
             class="form-control h-75"
             aria-label="Last name"
+            id="input"
           ></textarea>
         </div>
         <div class="h-50">
@@ -81,6 +82,7 @@
             type="text"
             class="form-control h-75"
             aria-label="Last name"
+            id="output"
           ></textarea>
         </div>
       </div>
@@ -95,19 +97,38 @@
     });
 
     let width = window.innerWidth;
-    editor.setSize(0.7 * width, "500px");
+    let input = document.getElementById("input");
+    let output = document.getElementById("output");
+    let run = document.getElementById("run");
+    editor.setSize(0.7 * width, "500");
 
-    let option = document.getElementById("inlineFromSelectPref")
+    let option = document.getElementById("inlineFromSelectPref");
     option.addEventListener("change", () => {
-      if (option.value==java) {
-        editor.setOption("mode", "text/x-java")
+      if (option.value == 'java') {
+        editor.setOption("mode", "text/x-java");
+      } else if (option.value == 'python') {
+        editor.setOption("mode", "text/x-python");
+      } else {
+        editor.setOption("mode", "text/x-c++src");
       }
-      else if (option.value==python) {
-        editor.setOption("mode", "text/x-python")
-      }
-      else{
-        editor.setOption("mode", "text/x-c++src")
-      }
-    })
+    });
+
+    let code;
+    run.addEventListener("click", async () => {
+      code = {
+        code: editor.getValue(),
+        input: input.value,
+        lang: option.value
+      };
+      let oData = await fetch("http://localhost:8000/compile", {
+        method: "POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify(code)
+      })
+      let d = await oData.json()
+      output.value = d.output
+    });
   </script>
 </html>
